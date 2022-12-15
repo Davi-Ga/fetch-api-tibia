@@ -15,7 +15,6 @@ const getHighscore = async(page,world)=>{
     const response = await fetch(`https://api.tibiadata.com/v3/highscores/${world}/swordfighting/knight/${page}`)
     if(response.status==200){
         const data = await response.json()
-        console.log(data['highscores']['category'])
         return data
     }
 }
@@ -49,12 +48,12 @@ voltar.addEventListener('click', ()=>{
     }
     else{
         page-=1
-        return createTable(page)
+        return createTable(page,world)
     }
 })
 
 proximo.addEventListener('click', ()=>{
     page+=1
-    return createTable(page)
-    
+    return createTable(page,world)
+
 })
