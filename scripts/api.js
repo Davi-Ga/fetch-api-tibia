@@ -1,26 +1,32 @@
 const tbody = document.getElementById('body_table');
 const voltar = document.querySelector('.btn-voltar');
 const proximo = document.querySelector('.btn-proximo');
+const title = document.getElementById('category');
 let page = 1;
-const getHighscore = async(page)=>{
-    const response = await fetch(`https://api.tibiadata.com/v3/highscores/Antica/swordfighting/paladins/${page}`)
+
+const defineWorld = () => {
+    listaW=['Antica','Belobra','Calmera','Damora','Fera','Gentebra','Harmonia','Illusera','Kalibra','Quelibra',]
+    elemento = listaW[Math.floor(Math.random()*listaW.length)]
+
+    return elemento
+}
+const world = defineWorld()
+const getHighscore = async(page,world)=>{
+    const response = await fetch(`https://api.tibiadata.com/v3/highscores/${world}/swordfighting/knight/${page}`)
     if(response.status==200){
         const data = await response.json()
-        return data["highscores"]['highscore_list']
-        
+        console.log(data['highscores']['category'])
+        return data
     }
 }
 
-const createTable = async(page)=>{
-    const data = await getHighscore(page)
+const createTable = async(page,world)=>{
+    const data = await getHighscore(page,world)
+    
     if (data){
-        
-        next_page = data.next
-        previous_page = data.previous
-
+        title.innerHTML = data['highscores']['category']
         tbody.innerHTML = ""
-        
-        data.forEach((element)=>{
+        data["highscores"]['highscore_list'].forEach((element)=>{
             
             const highscores = `
             <tr>
@@ -36,11 +42,10 @@ const createTable = async(page)=>{
         })
     }
 }
-createTable(page)
-
+createTable(page,world)
 voltar.addEventListener('click', ()=>{
     if(page==1){
-        console.log('Não tem mais páginas')
+       alert('Não tem mais páginas')
     }
     else{
         page-=1
