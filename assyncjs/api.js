@@ -1,7 +1,6 @@
 const tbody = document.getElementById('body_table');
-const tbodyDuel = document.getElementById('body_table_duel');
-
-const info = document.querySelector('.btn-duel');
+let playerid = 0
+const info = document.getElementsByClassName('btn-party');
 
 const previous = document.querySelector('.btn-previous');
 const next = document.querySelector('.btn-next');
@@ -74,10 +73,19 @@ const createTable = async(page,world,skill,voc)=>{
                 <th>${element.world}</th>
                 <th>${element.level}</th>
                 <th>${element.value}</th>
+                <td><button data-party=${playerid} data-action="add" class="btn btn-info btn-party">Add</button></td>
 
             </tr>
             `
+            id+=1
             tbody.innerHTML += highscores
+            for(let i=0;i<info.length;i++){
+                info[i].addEventListener('click',function(){
+                    var playerID=this.dataset.party
+                    console.log('playerID:',playerID)
+                })
+            }
+            
         })
         
     }
@@ -103,6 +111,4 @@ next.addEventListener('click', ()=>{
 
 });
 
-info.addEventListener('click', ()=>{  
-    worker()
-});
+
