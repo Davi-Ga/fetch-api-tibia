@@ -1,7 +1,7 @@
 //Luta de x1 de habilidade característica
 self.onmessage = (element) =>{
-    const arrayView = new Int32Array(element.data.vetor);
-    const flagView = new Int32Array(element.data.flag);
+    const aView = new Int32Array(element.data.v);
+    const fView = new Int32Array(element.data.f);
 
     let duel = Math.ceil(Math.random()*49);
 
@@ -14,14 +14,14 @@ self.onmessage = (element) =>{
            
         }
         if (tibiano1['value']>tibiano2['value']){
-            Atomics.wait(flagView, 0, 0);
-            Atomics.store(flagView, 0, 0);
+            Atomics.wait(fView, 0, 0);
+            Atomics.store(fView, 0, 0);
 
-            Atomics.store(arrayView, duel, tibiano1['value']);
-            Atomics.store(arrayView, duel+1, tibiano1['value']);
+            Atomics.store(aView, duel, tibiano1['value']);
+            Atomics.store(aView, duel+1, tibiano1['value']);
 
         }
-        Atomics.store(flagView, 0, 1);
-        Atomics.notify(flagView, 0, 1);
+        Atomics.store(fView, 0, 1);
+        Atomics.notify(fView, 0, 1);
     }
 }
