@@ -1,7 +1,7 @@
 const tbody = document.getElementById('body_table');
 const tbodyDuel = document.getElementById('body_table_duel');
 
-const info = document.querySelector('.btn-times');
+const info = document.querySelector('.btn-duel');
 
 const previous = document.querySelector('.btn-previous');
 const next = document.querySelector('.btn-next');
@@ -11,17 +11,16 @@ const title = document.getElementById('category');
 let page = 1;
 
 const worker = () => {
-    const f = new SharedArrayBuffer(4);
-    const v = new SharedArrayBuffer(100*4);
-
-    const fView = new Int8Array(f);
-    const vView = new Int32Array(v);
-
-    fView[0] = 1;
-
     let workers =[];
+    const f = new SharedArrayBuffer(2);
+    const v = new SharedArrayBuffer(20*2);
 
-    for (let i = 0; i < 10; i++) {
+    const fV = new Int8Array(f);
+
+    
+    
+    fV[0] = 1;
+    for (let i = 0; i < 15; i++) {
         workers.push(new Worker('worker.js'));
         workers[i].postMessage({f, v});
     }
