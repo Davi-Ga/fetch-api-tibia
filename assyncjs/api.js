@@ -77,7 +77,7 @@ const createTable = async(page,world,skill,voc)=>{
 
             </tr>
             `
-            id+=1
+            playerid+=1
             tbody.innerHTML += highscores
             for(let i=0;i<info.length;i++){
                 info[i].addEventListener('click',function(){
