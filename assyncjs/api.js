@@ -73,7 +73,7 @@ const createTable = async(page,world,skill,voc)=>{
                 <th>${element.world}</th>
                 <th>${element.level}</th>
                 <th>${element.value}</th>
-                <td><button data-party=${playerid} data-action="add" class="btn btn-info btn-party">Add</button></td>
+                <td><button data-party=${playerid} class="btn btn-info btn-party">Add</button></td>
 
             </tr>
             `
