@@ -83,6 +83,7 @@ const createTable = async(page,world,skill,voc)=>{
                 info[i].addEventListener('click',function(){
                     var playerID=this.dataset.party
                     console.log('playerID:',playerID)
+                    //agora vai
                 })
             }
             
