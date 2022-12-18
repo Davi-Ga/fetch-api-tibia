@@ -106,7 +106,7 @@ const createTable = async(page,world,skill,voc)=>{
                             partylist.push({name:nameplayer})
                         }
 
-                        const partytable=`
+                        const partytable=` 
                         <tr>
                             <th>${partylist[j].name}</th>
                         <tr>
