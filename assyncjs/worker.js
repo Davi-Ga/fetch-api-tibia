@@ -6,8 +6,11 @@ self.onmessage = (element) =>{
     let duel = Math.ceil(Math.random()*10);
 
     while(true){
+        partyD=[];
+        partyC=[];
         tibiano = Math.ceil(Math.random()*50);
         tibiano2 = Math.ceil(Math.random()*50);
+
 
         if (tibiano1['value']>tibiano2['value']){
             Atomics.wait(fV, 0, 0);
