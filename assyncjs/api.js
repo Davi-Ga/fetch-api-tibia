@@ -1,11 +1,12 @@
-const tbody = document.getElementById('body_table');
+const tbody = document.getElementById('body-table');
+
+const tbodyparty = document.getElementById('body-table-party');
 let playerid = 0
 const info = document.getElementsByClassName('btn-party');
 
 const previous = document.querySelector('.btn-previous');
 const next = document.querySelector('.btn-next');
-
-
+let partylist=[]
 const title = document.getElementById('category');
 let page = 1;
 
@@ -50,6 +51,7 @@ const skill = defineSkill()
 const voc = defineVocation()
 
 const getHighscore = async(page,world,skill,voc)=>{
+    
     const response = await fetch(`https://api.tibiadata.com/v3/highscores/${world}/${skill}/${voc}/${page}`)
     if(response.status==200){
         const data = await response.json()
@@ -57,12 +59,16 @@ const getHighscore = async(page,world,skill,voc)=>{
     }
 }
 
+
 const createTable = async(page,world,skill,voc)=>{
     const data = await getHighscore(page,world,skill,voc)
-    
+    let nameplayer = []
+    let idplayer=[]
+
     if (data){
         title.innerHTML = data['highscores']['category']
         tbody.innerHTML = ""
+
         data["highscores"]['highscore_list'].forEach((element)=>{
             
             const highscores = `
@@ -73,7 +79,7 @@ const createTable = async(page,world,skill,voc)=>{
                 <th>${element.world}</th>
                 <th>${element.level}</th>
                 <th>${element.value}</th>
-                <td><button data-party=${playerid} class="btn btn-info btn-party">Add</button></td>
+                <td><button data-id=${playerid} data-name=${element.name} class="btn btn-info btn-party">Add</button></td>
 
             </tr>
             `
@@ -81,9 +87,36 @@ const createTable = async(page,world,skill,voc)=>{
             tbody.innerHTML += highscores
             for(let i=0;i<info.length;i++){
                 info[i].addEventListener('click',function(){
-                    var playerID=this.dataset.party
-                    console.log('playerID:',playerID)
-                    //agora vai
+                    nameplayer[i]=(info[i].dataset.name)
+                    idplayer[i]=(info[i].dataset.id)
+                    console.log(idplayer[i])
+                    let sin = 0
+
+                    if(data){
+                        for(j=0;j<partylist.length;j++){
+                            if(partylist[j].name==nameplayer[j]){
+                                
+                                alert('Já está na lista')
+                                sin=1
+                            }
+                        }
+                    }
+                    if(partylist.length<4){
+                        if(sin!=1){
+                            partylist.push({name:nameplayer})
+                        }
+
+                        const partytable=`
+                        <tr>
+                            <th>${partylist[j].name}</th>
+                        <tr>
+                        `
+                        tbodyparty.innerHTML += partytable
+                    }
+                    else{
+                        alert('Sua party está cheia')
+                    }
+                    
                 })
             }
             
