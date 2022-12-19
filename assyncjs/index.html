@@ -14,50 +14,71 @@
 </head>
 <body>
     <nav class="navbar navbar-light bg-dark">
-        <h3 class="text-light">
-            Category: <span id="category"></span>
+        <a class="navbar-brand" href="https://www.tibia.com" target="_blank">
+            <img src="tibia_logo.png" alt="">
+            <h3 class="text-light">
+                Category: <span id="category"></span>
+            </h3>
+        </a>
+        <h3 class="text-light text-center">
+            Highscore Finder and Party Analizer
         </h3>
+        <p class="text-light text-center">
+            Design graphic is my passion
+        </p>
+        
     </nav>
-    
-    <section class="container">
-        
-        <button class="btn btn-light btn-previous">VOLTAR</button>
-        <button class="btn btn-light btn-next">PROXIMA</button>
-        <button class="btn btn-duel">Duel</button>
-
-        <table class="table table-dark table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">Rank</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Vocation</th>
-                    <th scope="col">World</th>
-                    <th scope="col">Level</th>
-                    <th scope="col">Value</th>
-                    <th scope="col">Add Party</th>
-                </tr>
-            </thead>
-            <tbody id="body-table">
-                
-            </tbody>
-            
-        </table>
-
-        <table class="table table-dark table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
+    <br><br>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <button class="btn btn-light btn-previous">VOLTAR</button>
+                <button class="btn btn-light btn-next">PROXIMA</button>
+                <table class="table table-dark table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Rank</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Vocation</th>
+                            <th scope="col">World</th>
+                            <th scope="col">Level</th>
+                            <th scope="col">Value</th>
+                            <th scope="col">Add Party</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-table">
+                        
+                    </tbody>
                     
-                </tr>
-            </thead>
-            <tbody id="body-table-party">
+                </table>
+            </div>
+            <div class="col-sm">
+            <button class="btn btn-light btn-duel">Party Analizer</button>
+            <table class="table table-dark table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Party List</th>
+                        
+                    </tr>
+                </thead>
+                <tbody id="body-table-party">
+                    
+                </tbody>
                 
-            </tbody>
-            
-        </table>
+            </table>
+          </div>
+          
+        </div>
+      </div>
+        
         
 
-    </section>
+       
+
+     
+        
+
+   
         
 </body>
 </html>
