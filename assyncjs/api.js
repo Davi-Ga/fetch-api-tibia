@@ -3,6 +3,7 @@ const tbody = document.getElementById('body-table');
 const tbodyparty = document.getElementById('body-table-party');
 let playerid = 0
 const info = document.getElementsByClassName('btn-party');
+let playername = ''
 
 const previous = document.querySelector('.btn-previous');
 const next = document.querySelector('.btn-next');
@@ -62,13 +63,13 @@ const getHighscore = async(page,world,skill,voc)=>{
 
 const createTable = async(page,world,skill,voc)=>{
     const data = await getHighscore(page,world,skill,voc)
-    let nameplayer = []
     let idplayer=[]
-
+    let namep=[]
     if (data){
         title.innerHTML = data['highscores']['category']
         tbody.innerHTML = ""
-
+        
+        
         data["highscores"]['highscore_list'].forEach((element)=>{
             
             const highscores = `
@@ -79,43 +80,49 @@ const createTable = async(page,world,skill,voc)=>{
                 <th>${element.world}</th>
                 <th>${element.level}</th>
                 <th>${element.value}</th>
-                <td><button data-id=${playerid} data-name=${element.name} class="btn btn-info btn-party">Add</button></td>
+                <td><button data-id=${playerid} data-name=${element.name}  class="btn btn-info btn-party">Add</button></td>
 
             </tr>
             `
             playerid+=1
             tbody.innerHTML += highscores
-            for(let i=0;i<info.length;i++){
-                info[i].addEventListener('click',function(){
-                    nameplayer[i]=(info[i].dataset.name)
-                    idplayer[i]=(info[i].dataset.id)
-                    console.log(idplayer[i])
-                    let sin = 0
 
-                    if(data){
-                        for(j=0;j<partylist.length;j++){
-                            if(partylist[j].name==nameplayer[j]){
+
+            for(let i=0;i<info.length;i++){
+                info[i].addEventListener('click',()=>{
+                    namep[i]=(info[i].dataset.name)
+                    idplayer[i]=parseInt(info[i].dataset.id)
+                    
+                        let sin=0
+                        if(data){
+                            for(j=0;j<partylist.length;j++){
+                                if(partylist[j].name==data['highscores']['highscore_list'][i]['name']){
+                                    
+                                    alert('Já está na lista')
+                                    sin=1
+                                }
+                            }
+                            if(partylist.length<4){
+                                if(sin!=1){
+                                    
+                                playername=(data['highscores']['highscore_list'][i]['name'])
                                 
-                                alert('Já está na lista')
-                                sin=1
+                                partylist.push({name:playername})
+                                
+                                const partytable=` 
+                                <tr>
+                                <th>${playername}</th>
+                                <tr>
+                                `
+                                tbodyparty.innerHTML += partytable
+                                }else{
+                                    alert('Já está na lista')
+                                }
+                            }else{
+                                alert('Sua party está cheia')
                             }
                         }
-                    }
-                    if(partylist.length<4){
-                        if(sin!=1){
-                            partylist.push({name:nameplayer})
-                        }
-
-                        const partytable=` 
-                        <tr>
-                            <th>${partylist[j].name}</th>
-                        <tr>
-                        `
-                        tbodyparty.innerHTML += partytable
-                    }
-                    else{
-                        alert('Sua party está cheia')
-                    }
+                    
                     
                 })
             }
