@@ -1,12 +1,12 @@
 const tbody = document.getElementById('body-table');
 
 const tbodyparty = document.getElementById('body-table-party');
-let playerid = 0
-const info = document.getElementsByClassName('btn-party');
-let playername = ''
-
 const previous = document.querySelector('.btn-previous');
 const next = document.querySelector('.btn-next');
+
+const part = document.getElementsByClassName('btn-party');
+let playerid = 0
+let playername = ''
 let partylist=[]
 const title = document.getElementById('category');
 let page = 1;
@@ -88,41 +88,36 @@ const createTable = async(page,world,skill,voc)=>{
             tbody.innerHTML += highscores
 
 
-            for(let i=0;i<info.length;i++){
-                info[i].addEventListener('click',()=>{
-                    namep[i]=(info[i].dataset.name)
-                    idplayer[i]=parseInt(info[i].dataset.id)
+            for(let i=0;i<part.length;i++){
+                part[i].addEventListener('click',()=>{
                     
-                        let sin=0
-                        if(data){
-                            for(j=0;j<partylist.length;j++){
-                                if(partylist[j].name==data['highscores']['highscore_list'][i]['name']){
-                                    
-                                    alert('Já está na lista')
-                                    sin=1
-                                }
-                            }
-                            if(partylist.length<4){
-                                if(sin!=1){
-                                    
-                                playername=(data['highscores']['highscore_list'][i]['name'])
-                                
-                                partylist.push({name:playername})
-                                
-                                const partytable=` 
-                                <tr>
-                                <th>${playername}</th>
-                                <tr>
-                                `
-                                tbodyparty.innerHTML += partytable
-                                }else{
-                                    alert('Já está na lista')
-                                }
-                            }else{
-                                alert('Sua party está cheia')
-                            }
+                    let sin=0
+                    for(j=0;j<partylist.length;j++){
+                        if(partylist[j].name==data['highscores']['highscore_list'][i]['name']){
+                            
+                            alert('Já está na party, escolha outro player')
+                            sin=1
                         }
+                    }
+                    if(partylist.length<4){
+                        if(sin!=1){
+                            
+                            playername=(data['highscores']['highscore_list'][i]['name'])
+                            
+                            partylist.push({name:playername})
+                            
+                            const partytable=` 
+                            <tr>
+                            <th>${playername}</th>
+                            <tr>
+                            `
+                            tbodyparty.innerHTML += partytable
+                        }
+                    }else{
+                        alert('Sua party está cheia')
+                    }
                     
+                
                     
                 })
             }
