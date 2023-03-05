@@ -3,7 +3,7 @@ const tbody = document.getElementById('body-table');
 const tbodyparty = document.getElementById('body-table-party');
 const previous = document.querySelector('.btn-previous');
 const next = document.querySelector('.btn-next');
-const part = document.getElementsByClassName('btn-party');
+const party = document.getElementsByClassName('btn-party');
 const title = document.getElementById('category');
 const partyAn = document.querySelector('.btn-partyAn');
 //Váriaveis globais
@@ -84,8 +84,8 @@ const createTable = async(page,world,skill,voc)=>{
             tbody.innerHTML += highscores
 
             //Laço de repetição para adicionar o evento de click no botão de adicionar player na party
-            for(let i=0;i<part.length;i++){
-                part[i].addEventListener('click',()=>{
+            for(let i=0;i<party.length;i++){
+                party[i].addEventListener('click',()=>{
                     //Variável flag para verificar se o player já está na party
                     let sin=0
                     //Verifica se o player já está na party utilizando seu nome
