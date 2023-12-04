@@ -1,6 +1,7 @@
 //Constantes globais
 const tbody = document.getElementById('body-table');
 const tbodyparty = document.getElementById('body-table-party');
+const tbodypartymaker = document.getElementById('body-table-party-maker');
 const previous = document.querySelector('.btn-previous');
 const next = document.querySelector('.btn-next');
 const party = document.getElementsByClassName('btn-party');
@@ -113,6 +114,7 @@ const createTable = async(page,world,skill,voc)=>{
                             <th>${playervoc}</th>
                             <tr>
                             `
+
                             //Adiciona a linha na tabela
                             tbodyparty.innerHTML += partytable
                         }
@@ -122,7 +124,8 @@ const createTable = async(page,world,skill,voc)=>{
                     }      
                 })
             }
-            
+           
+
         })
     }
 };
@@ -130,20 +133,57 @@ const createTable = async(page,world,skill,voc)=>{
 //Chama a função que cria a tabela
 createTable(page,world,skill,voc)
 
+
+partyAn.addEventListener("click", () => {
+    worker()
+});
+
+
+
 //Função que cria os workers
 const worker = () => {
-    let workers = [];
-    const sin = new SharedArrayBuffer(2);
-    const sinview = new Int8Array(f);
-    const array = new SharedArrayBuffer(20*2);
+    const textDecoder = new TextDecoder();
 
-    sinview[0] = 1;
+    const buffer = new SharedArrayBuffer(1024**2);
+    const buffer2 = new SharedArrayBuffer(1024**2);
+    const bufferView = new Uint8Array(buffer);
+    const bufferView2 = new Uint8Array(buffer2);
+    let worker = [];
+    bufferView[0] = 0;
+    for (let i = 0; i < 5; i++) {
+        worker.push(new Worker('worker.js'));
+        worker[i].onmessage = event => {
+            const sharedBufferFromWorker = event.data;
+            console.log(sharedBufferFromWorker)
+            const teste = sharedBufferFromWorker[1].slice(0, sharedBufferFromWorker[1].indexOf(0));
+            console.log(teste)
 
-    for (let i=0;i<5;i++) {
-        workers.push(new Worker('worker.js'));
-        workers[i].postMessage({sin, array});
+            const decodedText = textDecoder.decode(teste);
+            console.log(decodedText)
+            const jsonObject = JSON.parse(decodedText);
+            console.log('Decoded text:', jsonObject)
+           
+            
+        };
+        worker[i].postMessage([bufferView,bufferView2]);
+
+     
+    
     }
+    
+    
+    // Uso
+ 
+    const partymakertable=`
+    <tr>
+    <th>Oi</th>
+    <th>Oi</th>
+    <tr>
+    
+    `
+    tbodypartymaker.innerHTML += partymakertable
 };
+
 
 //Eventos dos botões de paginação
 previous.addEventListener('click', ()=>{
@@ -161,9 +201,4 @@ next.addEventListener('click', ()=>{
     
     return createTable(page,world,skill,voc)
 });
-
-partyAn.addEventListener("click", () => {
-    worker()
-});
-
 

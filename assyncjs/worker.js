@@ -1,25 +1,34 @@
-self.onmessage = (element) =>{
-    const arrayV = new Int32Array(element.data.array);
-    const sinV = new Int32Array(element.data.sin);
+self.onmessage = async ({data: buffer}) => {
+    const bufferView = new Uint8Array(buffer[0]);
+    const bufferView2 = new Uint8Array(buffer[1]);
 
-    let xph = Math.ceil(Math.random()*49);
+    console.log('SharedArray received in worker:', bufferView);
 
-    while(true){
-        let ek = Math.ceil(Math.random()*50);
-        let ed = Math.ceil(Math.random()*50);
+    const textEncoder = new TextEncoder();
 
-        while(ek==ed){
-            ek=Math.ceil(Math.random()*50);
+    await fetch('https://api.tibiadata.com/v3/highscores/all/shielding/all/2')
+        .then(response => response.json())
+        .then(data => {
+            const jsonString = JSON.stringify(data.highscores.highscore_list);
+            const encodedText = textEncoder.encode(jsonString);
+            console.log('Encoded text:', encodedText.length);
+            console.log(bufferView2.length);
+            if (encodedText.length > bufferView2.length) {
+                throw new Error('Buffer is not large enough to store the data');
+            }
 
-        }
-        if (ek>ed){
-            Atomics.wait(sinV, 0, 0);
-            Atomics.store(sinV, 0, 0);
+            // Copie os dados para o bufferView
+            for (let i = 0; i < encodedText.length; i++) {
+                bufferView2[i] = encodedText[i];
+            }
+           
 
-            Atomics.store(arrayV, xph, ek);
-            Atomics.store(arrayV, xph+1, ed);
+            self.postMessage([bufferView, bufferView2]);
+            console.log('SharedArray filled in worker:', bufferView2);
 
-        }
-       
-    }
+        })
+        .catch(error => {
+            // Handle the error
+            console.error('Error:', error);
+        });
 }
