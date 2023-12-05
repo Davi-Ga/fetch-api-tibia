@@ -12,6 +12,8 @@ let playerid = 0
 let playername = ''
 let partylist=[]
 let page = 1;
+let results = [];
+
 
 //Define a skill aleatória
 const defineSkill = () => {
@@ -34,7 +36,7 @@ const defineVocation = () => {
 //Define o mundo aleatório
 const defineWorld = () => {
     //Cria uma lista com os mundos e escolhe um elemento do array aleatoriamente com base no tamanho do array
-    listaW=['all','Antica','Damora','Fera','Harmonia','Illusera','Kalibra','Quelibra'];
+    listaW=['all','Antica','Damora','Fera','Harmonia','Kalibra','Quelibra'];
     elemento = listaW[Math.floor(Math.random()*listaW.length)];
 
     return elemento
@@ -48,7 +50,7 @@ const voc = defineVocation()
 //Função que faz a requisição da API com os parâmetros definidos acima
 const getHighscore = async(page,world,skill,voc)=>{
     //Faz a requisição da API e verifica se o status é 200 retornando os dados
-    const response = await fetch(`https://api.tibiadata.com/v3/highscores/${world}/${skill}/${voc}/${page}`)
+    const response = await fetch(`https://api.tibiadata.com/v4/highscores/${world}/${skill}/${voc}/${page}`)
     if(response.status==200){
         const data = await response.json()
         return data
@@ -135,54 +137,64 @@ createTable(page,world,skill,voc)
 
 
 partyAn.addEventListener("click", () => {
-    worker()
+    worker().then(jsonObjects => {
+        jsonObjects.forEach(jsonObject => {
+            console.log('Decoded text:', jsonObject);
+            const nomeplay = jsonObject['name'];
+            const partymakertable=`
+            <tr>
+            <th>Oi</th>
+            <th>Oi</th>
+            <tr>
+            `
+            tbodypartymaker.innerHTML += partymakertable;
+        });
+    }).catch(error => {
+        console.error('Error:', error);
+    }).finally(() => {
+        
+    });
 });
 
-
-
 //Função que cria os workers
-const worker = () => {
+function worker () {
     const textDecoder = new TextDecoder();
-
+    
     const buffer = new SharedArrayBuffer(1024**2);
     const buffer2 = new SharedArrayBuffer(1024**2);
     const bufferView = new Uint8Array(buffer);
     const bufferView2 = new Uint8Array(buffer2);
-    let worker = [];
+    let workers = [];
+    
+    blockSize = 5300;
     bufferView[0] = 0;
-    for (let i = 0; i < 5; i++) {
-        worker.push(new Worker('worker.js'));
-        worker[i].onmessage = event => {
-            const sharedBufferFromWorker = event.data;
-            console.log(sharedBufferFromWorker)
-            const teste = sharedBufferFromWorker[1].slice(0, sharedBufferFromWorker[1].indexOf(0));
-            console.log(teste)
+    let promises = [];
+        for (let i = 0; i < 5; i++) {
+            const worker = new Worker('worker.js');
+            workers.push(worker);
+            let promise = new Promise((resolve, reject) => {
+            worker.onmessage = event => {
+                const sharedBufferFromWorker = event.data;
+                const data = sharedBufferFromWorker[1].filter(value => value !== 0);
+                let decodedText = textDecoder.decode(data);
+                console.log(decodedText)
+                decodedText = decodedText.replace(/\]\[/g, ",");
+                const jsonObject = JSON.parse(decodedText);
 
-            const decodedText = textDecoder.decode(teste);
-            console.log(decodedText)
-            const jsonObject = JSON.parse(decodedText);
-            console.log('Decoded text:', jsonObject)
-           
-            
-        };
-        worker[i].postMessage([bufferView,bufferView2]);
+                resolve(jsonObject);
+            };
+            worker.onerror = reject;
+            const page = i+1;
+            const startIndexBuffer = new SharedArrayBuffer(512);
+            const startIndexArray = new Int32Array(startIndexBuffer);
+            startIndexArray[0] = i * blockSize;  
+            worker.postMessage([bufferView,bufferView2,page,startIndexArray]);
+        });
+        promises.push(promise);
+    };
+    return Promise.all(promises);
+}
 
-     
-    
-    }
-    
-    
-    // Uso
- 
-    const partymakertable=`
-    <tr>
-    <th>Oi</th>
-    <th>Oi</th>
-    <tr>
-    
-    `
-    tbodypartymaker.innerHTML += partymakertable
-};
 
 
 //Eventos dos botões de paginação
