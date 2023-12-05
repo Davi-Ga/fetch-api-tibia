@@ -18,28 +18,23 @@ let results = [];
 //Define a skill aleatória
 const defineSkill = () => {
     //Cria uma lista com as skills e escolhe um elemento do array aleatoriamente com base no tamanho do array
-    listaS=['swordfighting','distancefighting','fishing','magiclevel','shielding'];
-    elemento = listaS[Math.floor(Math.random()*listaS.length)];
+    const skills = ['swordfighting', 'distancefighting', 'fishing', 'magiclevel', 'shielding'];
+    return skills[Math.floor(Math.random() * skills.length)];
 
-    return elemento
 }
 
 //Define a vocation aleatória
 const defineVocation = () => {
     //Cria uma lista com as vocações e escolhe um elemento do array aleatoriamente com base no tamanho do array
-    listaW=['knights','paladins','druids','sorcerers','all'];
-    elemento = listaW[Math.floor(Math.random()*listaW.length)];
-
-    return elemento
+    const vocations = ['knights', 'paladins', 'druids', 'sorcerers', 'all'];
+    return vocations[Math.floor(Math.random() * vocations.length)];
 }
 
 //Define o mundo aleatório
 const defineWorld = () => {
     //Cria uma lista com os mundos e escolhe um elemento do array aleatoriamente com base no tamanho do array
-    listaW=['all','Antica','Damora','Fera','Harmonia','Kalibra','Quelibra'];
-    elemento = listaW[Math.floor(Math.random()*listaW.length)];
-
-    return elemento
+     const worlds = ['all', 'Antica', 'Damora', 'Harmonia', 'Kalibra', 'Quelibra'];
+    return worlds[Math.floor(Math.random() * worlds.length)];
 };
 
 //Define constantes com os valores aleatórios
@@ -132,56 +127,53 @@ const createTable = async(page,world,skill,voc)=>{
     }
 };
 
+let workerData
+let decodedTextResult
 //Chama a função que cria a tabela
 createTable(page,world,skill,voc)
 
 
 partyAn.addEventListener("click", () => {
-    worker().then(jsonObjects => {
-        jsonObjects.forEach(jsonObject => {
-            console.log('Decoded text:', jsonObject);
-            const nomeplay = jsonObject['name'];
-            const partymakertable=`
-            <tr>
-            <th>Oi</th>
-            <th>Oi</th>
-            <tr>
-            `
-            tbodypartymaker.innerHTML += partymakertable;
-        });
+    worker().then(data => {
+        data = data[data.length - 1]
+        decodedTextResult = data.replace(/\]\[/g, ",");
+        const jsonObject = JSON.parse(decodedTextResult);
+        workerData = jsonObject;
+           
     }).catch(error => {
         console.error('Error:', error);
     }).finally(() => {
-        
+        console.log('Decoded text:',workerData)
     });
 });
 
 //Função que cria os workers
 function worker () {
-    const textDecoder = new TextDecoder();
+    
     
     const buffer = new SharedArrayBuffer(1024**2);
     const buffer2 = new SharedArrayBuffer(1024**2);
     const bufferView = new Uint8Array(buffer);
     const bufferView2 = new Uint8Array(buffer2);
     let workers = [];
+    const textDecoder = new TextDecoder();
+
     
-    blockSize = 5300;
+    blockSize = 6900;
     bufferView[0] = 0;
     let promises = [];
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 25; i++) {
             const worker = new Worker('worker.js');
             workers.push(worker);
             let promise = new Promise((resolve, reject) => {
             worker.onmessage = event => {
                 const sharedBufferFromWorker = event.data;
+                console.log('Received buffer from worker:', sharedBufferFromWorker);
                 const data = sharedBufferFromWorker[1].filter(value => value !== 0);
                 let decodedText = textDecoder.decode(data);
-                console.log(decodedText)
                 decodedText = decodedText.replace(/\]\[/g, ",");
-                const jsonObject = JSON.parse(decodedText);
-
-                resolve(jsonObject);
+               
+                resolve(decodedText);
             };
             worker.onerror = reject;
             const page = i+1;
@@ -189,6 +181,7 @@ function worker () {
             const startIndexArray = new Int32Array(startIndexBuffer);
             startIndexArray[0] = i * blockSize;  
             worker.postMessage([bufferView,bufferView2,page,startIndexArray]);
+
         });
         promises.push(promise);
     };
