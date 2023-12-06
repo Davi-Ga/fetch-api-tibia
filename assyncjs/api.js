@@ -135,9 +135,8 @@ createTable(page,world,skill,voc)
 
 partyAn.addEventListener("click", () => {
     worker().then(data => {
-        console.log(data)
-        data = data[data.length - 1]
-        decodedTextResult = data[1].replace(/\]\[/g, ",");
+        console.log(data[0][0])
+        decodedTextResult = data[0][0].replace(/\]\[/g, ",");
         workerData = JSON.parse(decodedTextResult);
            
     }).catch(error => {
@@ -171,7 +170,6 @@ function worker () {
 
     
     blockSize = 6900;
-    bufferView[0] = 0;
     let promises = [];
         for (let i = 0; i < 25; i++) {
             const worker = new Worker('worker.js');

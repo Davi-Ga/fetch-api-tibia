@@ -6,7 +6,6 @@ self.onmessage = async ({ data: buffer }) => {
     const startIndexArray = buffer[3];
     const textEncoder = new TextEncoder();
     const textDecoder = new TextDecoder();
-    let peso = 1;
     console.log('Worker received buffer:', page);
     const vocationWeights = {
         'Elite Knight': 50,
@@ -36,11 +35,15 @@ self.onmessage = async ({ data: buffer }) => {
                 const jsonString = JSON.stringify(data.highscores.highscore_list);
                 const encodedText = textEncoder.encode(jsonString);
                 let startIndex = Atomics.load(startIndexArray, 0);
-                
+                console.log(
+                    ''
+                )
+
                 if (encodedText.length > bufferView2.length - startIndex) {
                     throw new Error('Buffer is not large enough to store the data');
                 }
                 
+            
                 // Copie os dados para o bufferView
                 for (let i = 0; i < encodedText.length; i++) {
                     
@@ -53,16 +56,15 @@ self.onmessage = async ({ data: buffer }) => {
                 let decodedTextJson = JSON.parse(decodedText);
                 
                 decodedTextJson.sort((a, b) => {
-                    const weightA = vocationWeights[a.vocation] || 0; // If vocation is not in the weights object, assign it a weight of 0
+                    const weightA = vocationWeights[a.vocation] || 0; 
                     const weightB = vocationWeights[b.vocation] || 0;
-                    return weightB - weightA;// Sort in descending order of weights
+                    return weightB - weightA;
                 }).sort((a, b) => {
-                    const weightA = worldsWeights[a.world] || 0; // If world is not in the weights object, assign it a weight of 0
+                    const weightA = worldsWeights[a.world] || 0; 
                     const weightB = worldsWeights[b.world] || 0;
-                    return weightB - weightA;// Sort in descending order of weights
+                    return weightB - weightA;
                 });
                 
-                console.log('Decoded text ordenated:', decodedTextJson);
 
                 const jsonStringRefac = JSON.stringify(decodedTextJson);
                 const encodedTextRefac = textEncoder.encode(jsonStringRefac);
