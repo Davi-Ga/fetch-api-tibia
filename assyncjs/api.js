@@ -135,15 +135,26 @@ createTable(page,world,skill,voc)
 
 partyAn.addEventListener("click", () => {
     worker().then(data => {
+        console.log(data)
         data = data[data.length - 1]
-        decodedTextResult = data.replace(/\]\[/g, ",");
-        const jsonObject = JSON.parse(decodedTextResult);
-        workerData = jsonObject;
+        decodedTextResult = data[1].replace(/\]\[/g, ",");
+        workerData = JSON.parse(decodedTextResult);
            
     }).catch(error => {
         console.error('Error:', error);
     }).finally(() => {
-        console.log('Decoded text:',workerData)
+        
+        workerData.slice(0, 50).map((element) => {
+            
+            
+            const personagem = `
+            <tr>
+                <th>${element.name}</th>
+                <th>${element.vocation}</th>
+            </tr>
+            `
+            tbodypartymaker.innerHTML += personagem
+        })
     });
 });
 
@@ -168,12 +179,15 @@ function worker () {
             let promise = new Promise((resolve, reject) => {
             worker.onmessage = event => {
                 const sharedBufferFromWorker = event.data;
-                console.log('Received buffer from worker:', sharedBufferFromWorker);
-                const data = sharedBufferFromWorker[1].filter(value => value !== 0);
+                const data = sharedBufferFromWorker[0].filter(value => value !== 0);
                 let decodedText = textDecoder.decode(data);
                 decodedText = decodedText.replace(/\]\[/g, ",");
+
+                const data2 = sharedBufferFromWorker[1].filter(value => value !== 0);
+                let decodedText2 = textDecoder.decode(data2);
+                decodedText2 = decodedText2.replace(/\]\[/g, ",");
                
-                resolve(decodedText);
+                resolve([decodedText,decodedText2]);
             };
             worker.onerror = reject;
             const page = i+1;
