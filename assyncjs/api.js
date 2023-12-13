@@ -135,25 +135,26 @@ createTable(page,world,skill,voc)
 
 partyAn.addEventListener("click", () => {
     worker().then(data => {
-        console.log(data[0][0])
-        decodedTextResult = data[0][0].replace(/\]\[/g, ",");
-        workerData = JSON.parse(decodedTextResult);
+        // console.log(data)
+        // data = data[data.length - 1]
+        // decodedTextResult = data[1].replace(/\]\[/g, ",");
+        // workerData = JSON.parse(decodedTextResult);
            
     }).catch(error => {
         console.error('Error:', error);
     }).finally(() => {
         
-        workerData.slice(0, 50).map((element) => {
+        // workerData.slice(0, 50).map((element) => {
             
             
-            const personagem = `
-            <tr>
-                <th>${element.name}</th>
-                <th>${element.vocation}</th>
-            </tr>
-            `
-            tbodypartymaker.innerHTML += personagem
-        })
+        //     const personagem = `
+        //     <tr>
+        //         <th>${element.name}</th>
+        //         <th>${element.vocation}</th>
+        //     </tr>
+        //     `
+        //     tbodypartymaker.innerHTML += personagem
+        // })
     });
 });
 
@@ -162,44 +163,49 @@ function worker () {
     
     
     const buffer = new SharedArrayBuffer(1024**2);
-    const buffer2 = new SharedArrayBuffer(1024**2);
     const bufferView = new Uint8Array(buffer);
-    const bufferView2 = new Uint8Array(buffer2);
-    let workers = [];
+    const startIndexBuffer = new SharedArrayBuffer(1024);
+    const startIndexArray = new Int32Array(startIndexBuffer);
+    
     const textDecoder = new TextDecoder();
 
     
-    blockSize = 6900;
+    blockSize = 1024*200;
     let promises = [];
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 1; i++) { 
             const worker = new Worker('worker.js');
-            workers.push(worker);
             let promise = new Promise((resolve, reject) => {
             worker.onmessage = event => {
                 const sharedBufferFromWorker = event.data;
                 const data = sharedBufferFromWorker[0].filter(value => value !== 0);
                 let decodedText = textDecoder.decode(data);
                 decodedText = decodedText.replace(/\]\[/g, ",");
-
-                const data2 = sharedBufferFromWorker[1].filter(value => value !== 0);
-                let decodedText2 = textDecoder.decode(data2);
-                decodedText2 = decodedText2.replace(/\]\[/g, ",");
+                // console.log(JSON.parse(decodedText))
                
-                resolve([decodedText,decodedText2]);
+                resolve(decodedText);
+                worker.terminate(); 
             };
-            worker.onerror = reject;
-            const page = i+1;
+            worker.onerror = error => {
+                reject(error);
+                worker.terminate(); // Encerra o Worker em caso de erro
+            };
             const startIndexBuffer = new SharedArrayBuffer(512);
             const startIndexArray = new Int32Array(startIndexBuffer);
+            let pages = Array.from({length: 5}, (_, index) => (i * 5) + index + 1);
             startIndexArray[0] = i * blockSize;  
-            worker.postMessage([bufferView,bufferView2,page,startIndexArray]);
+            worker.postMessage([bufferView,pages,startIndexArray, i]);
 
         });
         promises.push(promise);
     };
     return Promise.all(promises);
 }
-
+/* 1  2  3  4  5     0 * 5 + 1
+   6  7  8  9  10    1 * 5 + 1
+   11 12 13 14 15    2 
+   16 17 18 19 20    3
+   21 22 23 24 25    4
+   */
 
 
 //Eventos dos botões de paginação
