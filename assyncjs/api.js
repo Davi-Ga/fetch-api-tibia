@@ -135,27 +135,39 @@ createTable(page,world,skill,voc)
 
 partyAn.addEventListener("click", () => {
     worker().then(data => {
-        // console.log(data)
-        // data = data[data.length - 1]
-        // decodedTextResult = data[1].replace(/\]\[/g, ",");
-        // workerData = JSON.parse(decodedTextResult);
+        console.log(data[0])
+        workerData = JSON.parse(data[0]);
+        console.log(workerData)
            
     }).catch(error => {
         console.error('Error:', error);
     }).finally(() => {
         
-        // workerData.slice(0, 50).map((element) => {
-            
-            
-        //     const personagem = `
-        //     <tr>
-        //         <th>${element.name}</th>
-        //         <th>${element.vocation}</th>
-        //     </tr>
-        //     `
-        //     tbodypartymaker.innerHTML += personagem
-        // })
-    });
+        workerData.slice(0, 10).map((group,index) => {
+            console.log(group)
+            let test = group.groupWeight *(10 - index+1)
+            // Criar uma nova tabela para cada grupo
+            const table = `
+            <table>
+                <thead>
+                    <tr>
+                        <th colspan="2">Group ${index + 1} ${test}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${group.members.slice(0, 5).map((member) => `
+                    <tr>
+                        <th>${member.name}</th>
+                        <th>${member.vocation}</th>
+                    </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            `;
+        
+            tbodypartymaker.innerHTML += table;
+            });
+        });
 });
 
 //Função que cria os workers
@@ -164,15 +176,13 @@ function worker () {
     
     const buffer = new SharedArrayBuffer(1024**2);
     const bufferView = new Uint8Array(buffer);
-    const startIndexBuffer = new SharedArrayBuffer(1024);
-    const startIndexArray = new Int32Array(startIndexBuffer);
     
     const textDecoder = new TextDecoder();
 
     
     blockSize = 1024*200;
     let promises = [];
-        for (let i = 0; i < 1; i++) { 
+        for (let i = 0; i < 2; i++) { 
             const worker = new Worker('worker.js');
             let promise = new Promise((resolve, reject) => {
             worker.onmessage = event => {
@@ -180,7 +190,16 @@ function worker () {
                 const data = sharedBufferFromWorker[0].filter(value => value !== 0);
                 let decodedText = textDecoder.decode(data);
                 decodedText = decodedText.replace(/\]\[/g, ",");
-                // console.log(JSON.parse(decodedText))
+                decodedText = decodedText.replace(/\}\{/g, ",");
+                let groupsObject = JSON.parse(decodedText);
+
+                // Converter o objeto em um array   
+                let groups = Object.values(groupsObject);
+
+                // Ordenar os grupos
+                groups.sort((a, b) => b.groupWeight - a.groupWeight);
+                decodedText = JSON.stringify(groups);
+
                
                 resolve(decodedText);
                 worker.terminate(); 

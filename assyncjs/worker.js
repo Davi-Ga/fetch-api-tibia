@@ -19,37 +19,47 @@ self.onmessage = async ({ data: buffer }) => {
         return skills[Math.floor(Math.random() * skills.length)];
     
     }
+
+    const skillWeights = {
+        'swordfighting': 16.3,
+        'distancefighting': 10.7,
+        'axefighting': 12.3,
+        'shielding': 11.8,
+    };
     
         for (let i = 0; i < pages.length; i++) {
-            skills = defineSkill()
+            const skill = defineSkill()
 
-            await fetch(`https://api.tibiadata.com/v4/highscores/all/${skills}/all/${pages[i]}`)
+            await fetch(`https://api.tibiadata.com/v4/highscores/all/${skill}/all/${pages[i]}`)
             .then(response => response.json())
             .then(data => {
                 const groupSize = 5;
-
+                const workerNumber = nome+1; // This should be the number of the current worker
+                const offset =  10 * (workerNumber - 1); // Calculate the offset based on the worker number
+                
                 const groups = data.highscores?.highscore_list.reduce((acc, element, index) => {
-                    const groupIndex = Math.floor(index / groupSize);
+                    const groupIndex = Math.floor(index / groupSize) + offset; // Add the offset to the group index
                     if (!acc[groupIndex]) {
                         acc[groupIndex] = {
                             vocations: [...vocationWeights], 
-                            members: []
+                            members: [],
+                            groupWeight: 0 // Initialize groupWeight
                         };
                     }
                     const vocation = acc[groupIndex].vocations.splice(Math.floor(Math.random() * acc[groupIndex].vocations.length), 1)[0];
                     element.vocation = vocation;
                     acc[groupIndex].members.push(element);
+                
+                    acc[groupIndex].groupWeight += element.value * skillWeights[skill]; // Multiply the value with the skill weight
+                
                     return acc;
                 }, {});
-
-                console.log(JSON.stringify(groups, null, 2));
                 
-                const jsonString = JSON.stringify(data.highscores?.highscore_list);
+                const jsonString = JSON.stringify(groups);
 
                 const encodedText = textEncoder.encode(jsonString);
                 let startIndex = Atomics.load(startIndexArray, 0);
                 console.log("pagina numero", pages[i],"worker numero", nome)
-                console.log()
             
             
                 // Copie os dados para o bufferView
@@ -58,9 +68,8 @@ self.onmessage = async ({ data: buffer }) => {
                     Atomics.store(bufferView, startIndex+i, encodedText[i]);
                     
                 }
-              
                 Atomics.add(startIndexArray,0, encodedText.length);
-
+                
             })
             .catch(error => {
                 // Handle the error
